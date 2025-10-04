@@ -18,17 +18,19 @@ async function bootstrap() {
 
   // Swagger Configuration
   const config = new DocumentBuilder()
-    .setTitle('Scalable Likes System')
+    .setTitle('Ticket Management System API')
     .setDescription(
-      'Event-driven social media likes API with Redis caching and Kafka messaging',
+      'A scalable ticket booking system built with NestJS and serverless architecture',
     )
     .setVersion('1.0')
-    .addTag('likes', 'Like management operations')
+    .addTag('auth', 'Authentication operations')
+    .addTag('concerts', 'Concert management operations')
+    .addBearerAuth()
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api/docs', app, document, {
-    customSiteTitle: 'Likes API Documentation',
+    customSiteTitle: 'Ticket Management API Documentation',
     customfavIcon: 'https://nestjs.com/img/logo-small.svg',
     customJs: [
       'https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.15.5/swagger-ui-bundle.min.js',
@@ -40,7 +42,7 @@ async function bootstrap() {
   });
 
   const httpAdapterHost = app.get(HttpAdapterHost);
-  app.useGlobalFilters(new AllExceptionsFilter(httpAdapterHost));
+  // app.useGlobalFilters(new AllExceptionsFilter(httpAdapterHost));
   app.useGlobalInterceptors(new LoggingInterceptor());
   app.useGlobalPipes(
     new ValidationPipe({
@@ -50,6 +52,9 @@ async function bootstrap() {
     }),
   );
 
-  await app.listen(process.env.PORT ?? 3000);
+  const port = process.env.PORT || 3000;
+  await app.listen(port);
+  console.log(`🚀 Application is running on: ${await app.getUrl()}`);
+  console.log(`📚 Swagger documentation: ${await app.getUrl()}/api/docs`);
 }
 bootstrap();

@@ -1,6 +1,0 @@
-export enum EventStatusEvent {
-  SET_PENDING = 'PENDING',
-  SET_RETRYING = 'RETRYING',
-  SET_SUCCESS = 'SUCCESS',
-  SET_FAILED = 'FAILED',
-}

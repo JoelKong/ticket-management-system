@@ -1,0 +1,87 @@
+version: "3.8"
+
+services:
+  # MongoDB Database
+  mongodb:
+    image: mongo:7-jammy
+    container_name: ticket_mongodb
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: rootpassword
+      MONGO_INITDB_DATABASE: ticket_management_system
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+      - ./mongodb-init.js:/docker-entrypoint-initdb.d/mongodb-init.js:ro
+    networks:
+      - ticket-network
+
+  # Redis Cache
+  redis:
+    image: redis:7-alpine
+    container_name: ticket_redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - ticket-network
+
+  # Backend API
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: ticket_backend
+    environment:
+      - NODE_ENV=development
+      - DB_HOST=mongodb
+      - DB_PORT=27017
+      - DB_USERNAME=mongodb
+      - DB_PASSWORD=mongodb123
+      - DB_DATABASE=ticket_management_system
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - JWT_SECRET=your-super-secret-jwt-key-change-in-production
+      - STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY}
+      - STRIPE_PUBLISHABLE_KEY=${STRIPE_PUBLISHABLE_KEY}
+    ports:
+      - "3000:3000"
+    depends_on:
+      - mongodb
+      - redis
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+    networks:
+      - ticket-network
+    command: npm run start:dev
+
+  # Frontend
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: ticket_frontend
+    environment:
+      - VITE_API_URL=http://localhost:3000
+      - VITE_STRIPE_PUBLISHABLE_KEY=${STRIPE_PUBLISHABLE_KEY}
+    ports:
+      - "5173:5173"
+    depends_on:
+      - backend
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    networks:
+      - ticket-network
+    command: npm run dev -- --host
+
+volumes:
+  mongodb_data:
+  redis_data:
+
+networks:
+  ticket-network:
+    driver: bridge

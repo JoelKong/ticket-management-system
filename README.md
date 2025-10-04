@@ -69,9 +69,15 @@ Traditional ticket booking systems face critical challenges during high-demand e
 ### Backend
 
 - **NestJS** with TypeScript
-- **AWS Lambda** for serverless functions
-- **API Gateway** for request routing and rate limiting
-- **EventBridge** for event orchestration
+- **TypeORM** for database ORM with PostgreSQL
+- **class-validator** for request validation
+- **Swagger** for API documentation
+- **JWT** for authentication
+- **Redis** for seat reservation caching
+- **Stripe** for payment processing
+- **AWS Lambda** for serverless functions (production)
+- **API Gateway** for request routing and rate limiting (production)
+- **EventBridge** for event orchestration (production)
 
 ### Database & Caching
 

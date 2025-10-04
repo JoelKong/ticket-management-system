@@ -29,7 +29,24 @@ export class AllExceptionsFilter implements ExceptionFilter {
       correlationId: request[CORRELATION_ID_HEADER],
       message:
         exception instanceof HttpException
-          ? exception.getResponse()
+          ? (() => {
+              try {
+                const response = exception.getResponse();
+                if (typeof response === 'string') {
+                  return response;
+                }
+                if (
+                  response &&
+                  typeof response === 'object' &&
+                  'message' in response
+                ) {
+                  return (response as any).message;
+                }
+                return 'An error occurred';
+              } catch (error) {
+                return 'An error occurred';
+              }
+            })()
           : 'Internal server error',
     };
 
